@@ -1,103 +1,132 @@
-import Image from "next/image";
+"use client";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { fetchSatellites } from "@/utils/api";
+import Filters from "@/components/Filters";
+import Table from "@/components/Table";
+import Header from "@/components/Header";
+import StarsBackground from "@/components/StarsBackground";
+
+interface Satellite {
+  noradCatId: string;
+  name: string;
+  orbitCode: string;
+  objectType: string;
+  countryCode: string;
+  launchDate: string;
+}
+
+
+interface FilterParams {
+  objectTypes?: string[];
+  orbitCodes?: string[];
+  [key: string]: any;
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [satellites, setSatellites] = useState<Satellite[]>([]);
+  const [selected, setSelected] = useState<Satellite[]>(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("selected");
+      return stored ? JSON.parse(stored) : [];
+    }
+    return [];
+  });
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  const [filters, setFilters] = useState<FilterParams>({});
+  const [query, setQuery] = useState("");
+  const [sortKey, setSortKey] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [loading, setLoading] = useState(false);
+
+  const router = useRouter();
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        setLoading(true);
+        const data = await fetchSatellites(filters);
+        setSatellites(data);
+      } catch {
+        setSatellites([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    load();
+  }, [filters]);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("selected");
+      if (stored) {
+        setSelected(JSON.parse(stored));
+      }
+    }
+  }, []);
+
+  const handleSearch = async (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      try {
+        const fresh = await fetchSatellites(filters);
+        const filtered = fresh.filter(
+          (s: Satellite) =>
+            s.name?.toLowerCase().includes(query.toLowerCase()) ||
+            s.noradCatId?.toString().includes(query)
+        );
+        setSatellites(filtered);
+      } catch (err) {
+        console.error("Search failed", err);
+        setSatellites([]);
+      }
+    }
+  };
+
+  const handleProceed = () => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem("selected", JSON.stringify(selected));
+      router.push("/selected");
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen bg-gradient-to-br from-[#0a0f1c] via-[#1b1f33] to-[#0a0f1c]  text-white overflow-hidden">
+        <StarsBackground />
+      <div className="relative z-10 p-4">
+        <Header title="🛰️ Satellite Dashboard"/>
+        <input
+          type="text"
+          placeholder="Search by name or NORAD ID..."
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={handleSearch}
+          className="w-full p-2 mb-4 rounded border bg-gray-800 text-white placeholder-gray-400"
+        />
+        <Filters filters={filters} setFilters={setFilters} />
+        {loading ? (
+          <p className="mt-6 text-center">Loading data...</p>
+        ) : (
+          <Table
+            data={satellites}
+            selected={selected}
+            setSelected={setSelected}
+            sortKey={sortKey}
+            setSortKey={setSortKey}
+            sortOrder={sortOrder}
+            setSortOrder={setSortOrder}
+          />
+        )}
+
+        <div className="mt-4 flex justify-between items-center">
+          <p>Selected: {selected.length} / 10</p>
+          <button
+            onClick={handleProceed}
+            className="bg-cyan-500 text-white px-6 py-2 rounded hover:bg-cyan-600 shadow"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+            Proceed
+          </button>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+      </div>
     </div>
   );
 }
