@@ -1,36 +1,33 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛰️ Satellite Tracker Dashboard
 
-## Getting Started
+A modern, responsive satellite tracking dashboard built using **Next.js**, **TypeScript**, **Tailwind CSS**, and the **Digantara API**. Users can filter, search, and select up to 10 satellites and view them on a separate result page.
 
-First, run the development server:
+## 🚀 Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+- 🔍 **Search & Filter** by NORAD ID, object type, and orbit code  
+- 🧮 **Sort** by name, NORAD ID, orbit code, country code, and launch date  
+- ✅ **Select up to 10** satellites with visual feedback  
+- 💾 **Local storage** support for persistence across pages  
+- ⚡ **Virtualized rendering** using React Window + AutoSizer for better performance with large data sets  
+- 🖥️ Fully **responsive** design (mobile, tablet, desktop)  
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Tech Stack
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **Next.js**
+- **TypeScript**
+- **Tailwind CSS**
+- **React Window** – for efficiently rendering large lists  
+- **react-virtualized-auto-sizer** – for dynamic sizing of virtualized components  
+- **Digantara API** – for satellite data  
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🛠️ Setup
 
-## Learn More
+1. Clone the repository: `git clone https://github.com/Anshika31sharma/drt_next_anshika`  
+2. Navigate to the project directory: `cd drt_next_anshika` 
+3. Install dependencies: `npm install`  
+4. Build the app : `npm run build` 
+5. Start the development server: `npm start`  
 
-To learn more about Next.js, take a look at the following resources:
+## 👩‍💻 Author
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**Anshika Sharma**
